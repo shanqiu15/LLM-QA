@@ -11,6 +11,7 @@ pip install faiss-cpu
 
 Before running please export the API keys using environment variables:
 
+cd src
 export OPENAI_API_KEY=...
 export GANTRY_API_KEY=...
 
