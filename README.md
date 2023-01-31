@@ -9,4 +9,9 @@ pip install faiss-cpu
 
 ### start teh streamlit server
 
-streamlit run src/app.py
+Before running please export the API keys using environment variables:
+
+export OPENAI_API_KEY=...
+export GANTRY_API_KEY=...
+
+streamlit run app.py

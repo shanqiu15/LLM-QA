@@ -18,7 +18,7 @@ DOCS_FOLDER = Path("docs")
 
 
 class FSDLQAChain:
-    def __init__(self):
+    def __init__(self, api_key):
         lecture_text_list, lecture_metadata = parse_lectures()
         srt_text_list, srt_metadata = parse_srt()
         all_text_splits = lecture_text_list + srt_text_list
@@ -26,9 +26,8 @@ class FSDLQAChain:
         embeddings = HuggingFaceEmbeddings()
         docsearch = FAISS.from_texts(
             all_text_splits, embeddings, all_text_metadata)
-        PERSONAL_KEY = "use your openai key"
         self.chain = VectorDBQAWithSourcesChain.from_chain_type(
-            OpenAI(temperature=0, openai_api_key=PERSONAL_KEY), chain_type="stuff", vectorstore=docsearch)
+            OpenAI(temperature=0, openai_api_key=api_key), chain_type="stuff", vectorstore=docsearch)
 
     def query(self, question: str):
         return self.chain({"question": question}, return_only_outputs=True)
