@@ -26,12 +26,12 @@ class FSDLQAChain:
         embeddings = HuggingFaceEmbeddings()
         docsearch = FAISS.from_texts(
             all_text_splits, embeddings, all_text_metadata)
-        PERSONAL_KEY = "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"
+        PERSONAL_KEY = "use your openai key"
         self.chain = VectorDBQAWithSourcesChain.from_chain_type(
             OpenAI(temperature=0, openai_api_key=PERSONAL_KEY), chain_type="stuff", vectorstore=docsearch)
 
     def query(self, question: str):
-        self.chain({"question": question}, return_only_outputs=True)
+        return self.chain({"question": question}, return_only_outputs=True)
 
 
 def get_lecture_titles():

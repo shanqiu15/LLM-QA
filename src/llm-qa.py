@@ -1,3 +1,4 @@
+import pandas as pd
 from typing import Dict
 
 import streamlit as st
@@ -6,10 +7,15 @@ from transformers import Pipeline
 from transformers import pipeline
 
 NUM_SENT = 10
+"""
+Question answering app based on wikipedia
+"""
 
 # https://www.mihaileric.com/posts/state-of-the-art-question-answering-streamlit-huggingface/
 
 # @st.cache
+
+
 def get_qa_pipeline() -> Pipeline:
     qa = pipeline("question-answering")
     return qa
@@ -21,6 +27,7 @@ def answer_question(pipeline: Pipeline, question: str, paragraph: str) -> Dict:
         "context": paragraph
     }
     return pipeline(input)
+
 
 @st.cache
 def get_wiki_paragraph(query: str) -> str:
@@ -58,6 +65,17 @@ if __name__ == "__main__":
 
                 start_idx = answer["start"]
                 end_idx = answer["end"]
-                paragraph_slot.markdown(format_text(wiki_para, start_idx, end_idx))
+                paragraph_slot.markdown(format_text(
+                    wiki_para, start_idx, end_idx))
             except:
                 st.write("You must provide a valid wikipedia paragraph")
+
+        df = pd.DataFrame({
+            'feedback column': ["", "good", "bad"]
+        })
+
+        option = st.selectbox(
+            'Please provide a feedback for the answer:',
+            df['feedback column'])
+
+        'You selected: ', option
