@@ -7,7 +7,12 @@ pip install openai
 pip install srt
 pip install faiss-cpu
 
-### start teh streamlit server
+### start gantry local dev env
+
+cd gantry
+tilt up
+
+### start streamlit server
 
 Before running please export the API keys using environment variables:
 
