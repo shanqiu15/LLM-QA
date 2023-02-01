@@ -8,7 +8,7 @@ import hashlib
 
 from fsdl_qa import FSDLQAChain
 
-APP_NAME = "llm_qa_test"
+APP_NAME = "llm_qa_test_2_1"
 os.environ["GANTRY_LOGS_LOCATION"] = "https://app.staging.gantry.io"
 
 
@@ -26,7 +26,7 @@ if __name__ == "__main__":
     if question:
         with st.form("QA_FORM"):
             st.write(question)
-            out = qa_chain.query(question=question)
+            out, pipeline_file = qa_chain.query(question=question)
             st.write(out)
 
             df = pd.DataFrame({
@@ -38,11 +38,10 @@ if __name__ == "__main__":
                 df['feedback column'])
 
             if option:
-                st.write(
-                    "******************************log to gantry**************************")
                 gantry.log_records(
                     APP_NAME,
-                    inputs=[{"question": question, "pipeline": "s3://bucket/key"}],
+                    inputs=[{"question": question,
+                             "pipeline": f"s3://bucket/{pipeline_file}"}],
                     outputs=[{"output": json.dumps(out)}],
                     feedbacks=[{"customer_feedback": option}],
                     join_keys=[base64.b64encode(hashlib.sha256(

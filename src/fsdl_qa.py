@@ -1,6 +1,8 @@
 import os
 from pathlib import Path
 import shutil
+import random
+import json
 import string
 
 import srt
@@ -15,6 +17,7 @@ from langchain.chains import VectorDBQAWithSourcesChain
 from langchain import OpenAI
 
 DOCS_FOLDER = Path("docs")
+TEMPERATURE = 0
 
 
 class FSDLQAChain:
@@ -23,14 +26,59 @@ class FSDLQAChain:
         srt_text_list, srt_metadata = parse_srt()
         all_text_splits = lecture_text_list + srt_text_list
         all_text_metadata = lecture_metadata + srt_metadata
-        embeddings = HuggingFaceEmbeddings()
-        docsearch = FAISS.from_texts(
-            all_text_splits, embeddings, all_text_metadata)
+        self.embeddings = HuggingFaceEmbeddings()
+        self.docsearch = FAISS.from_texts(
+            all_text_splits, self.embeddings, all_text_metadata)
+        self.openai_llm = OpenAI(
+            temperature=TEMPERATURE, openai_api_key=api_key)
         self.chain = VectorDBQAWithSourcesChain.from_chain_type(
-            OpenAI(temperature=0, openai_api_key=api_key), chain_type="stuff", vectorstore=docsearch)
+            self.openai_llm, chain_type="stuff", vectorstore=self.docsearch)
 
     def query(self, question: str):
-        return self.chain({"question": question}, return_only_outputs=True)
+        answer = self.chain({"question": question}, return_only_outputs=True)
+        docs_and_scores = self.chain.vectorstore.similarity_search_with_score(
+            question, k=self.chain.k, **self.chain.search_kwargs
+        )
+        log_docs_and_score = [{"text": item[0].page_content,
+                               "source": item[0].metadata["source"], "score": item[1].item()} for item in docs_and_scores]
+        docs = [doc for doc, _ in docs_and_scores]
+        prompt_input = self.chain.combine_documents_chain._get_inputs(
+            docs, **{"question": question})
+        final_prompt = self.chain.combine_documents_chain.llm_chain.prompt.format(
+            **prompt_input)
+        pipeline = json.load(open("pipeline_template.json"))
+        for node in pipeline["nodes"]:
+            match node["name"]:
+                case "EmbeddingIndex":
+                    node["data"] = [{"index_id": "local_faiss_v0"}]
+                    node["metadata"] = {"model_id": self.embeddings.model_name}
+                case "Question":
+                    node["data"] = [{"question": question}]
+                case "GenerateEmbedding":
+                    node["metadata"] = {"model_id": self.embeddings.model_name}
+                case "QuestionEmbedding":
+                    node["data"] = [
+                        {"embedding": self.chain.vectorstore.embedding_function(question)}],
+                case "Prompt Templates":
+                    node["data"] = [
+                        {"prompt templates": self.chain.combine_documents_chain.llm_chain.prompt.template}],
+                case "KNN":
+                    node["metadata"] = {"K": self.chain.k,
+                                        "Env": "FAISS"}
+                case "Top N neighbors":
+                    node["data"] = log_docs_and_score
+                case "Prompt":
+                    node["data"] = [{"Prompt": final_prompt}]
+                case "LLM":
+                    node["metadata"] = {
+                        "model": self.openai_llm.model_name,  "temperature": TEMPERATURE}
+                case "answer":
+                    node["data"] = [{"answer": answer}]
+        file_name = f"logs/log_session_{random.randint(0, 10000)}.json"
+        with open(file_name, "w") as outfile:
+            json.dump(pipeline, outfile, indent=4)
+
+        return answer, file_name
 
 
 def get_lecture_titles():

@@ -1,0 +1,115 @@
+{
+  "nodes": [
+    {
+      "id": "0",
+      "name": "EmbeddingIndex",
+      "node_type": "data",
+      "x": 2,
+      "y": 0,
+      "data": [{"index_id": "dummy_version_id"}],
+      "metadata": {"model": "Sentence Transformers"}
+    },
+    {
+      "id": "1",
+      "name": "Question",
+      "node_type": "data",
+      "x": 0,
+      "y": 1,
+      "data": [{"question": "dummy question"}],
+      "metadata": {}
+    },
+    {
+      "id": "2",
+      "name": "GenerateEmbedding",
+      "node_type": "operation",
+      "x": 1,
+      "y": 1,
+      "metadata": {"model": "Sentence Transformers"}
+    },
+    {
+      "id": "3",
+      "name": "QuestionEmbedding",
+      "node_type": "data",
+      "x": 2,
+      "y": 1,
+      "data": [{"embedding": [0.1,0.2,0.3]}],
+      "metadata": {}
+    },
+    {
+      "id": "4",
+      "name": "Prompt Templates",
+      "node_type": "data",
+      "x": 4,
+      "y": 2,
+      "data": [{"prompt templates": "answering the following questions"}],
+      "metadata": {}
+    },
+    {
+      "id": "5",
+      "name": "KNN",
+      "node_type": "operation",
+      "x": 3,
+      "y": 0,
+      "metadata": {"K" : 3, "Env": "Faiss"}
+    },
+    {
+      "id": "6",
+      "name": "Top N neighbors",
+      "node_type": "data",
+      "x": 4,
+      "y": 0,
+      "data": [ 
+          {"text": "raw text 1", "embedding": [0.1,0.2,0.3,0.4], "score": 0.01},
+          {"text": "raw text 2", "embedding": [0.1,0.2,0.3,0.4], "score": 0.02}
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "7",
+      "name": "Prompt Generation",
+      "node_type": "operation",
+      "x": 5,
+      "y": 2,
+      "metadata": {}
+    },
+    {
+      "id": "8",
+      "name": "Prompt",
+      "node_type": "data",
+      "x": 6,
+      "y": 2,
+      "data": [{ "Prompt": "This is the final raw prompt" }],
+      "metadata": {}
+    },
+    {
+      "id": "9",
+      "name": "LLM",
+      "node_type": "operation",
+      "x": 7,
+      "y": 2,
+      "metadata": {"model": "text-davinci-003", "temperature": 0} 
+    },
+    {
+      "id": "10",
+      "name": "answer",
+      "node_type": "data",
+      "x": 8,
+      "y": 2,
+      "data": [{"answer": "dummy answer"}],
+      "metadata": {}
+    }
+  ],
+
+  "links": [
+    { "source": "1", "target": "2" },
+    { "source": "2", "target": "3" },
+    { "source": "0", "target": "5" },
+    { "source": "3", "target": "5" },
+    { "source": "5", "target": "6" },
+    { "source": "4", "target": "7" },
+    { "source": "6", "target": "7" },
+    { "source": "7", "target": "8" },
+    { "source": "8", "target": "9" },
+    { "source": "9", "target": "10" }
+  ]
+}
