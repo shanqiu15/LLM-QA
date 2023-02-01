@@ -14,6 +14,8 @@ Before running please export the API keys using environment variables:
 cd src
 export OPENAI_API_KEY=...
 export GANTRY_API_KEY=...
+export GANTRY_LOGS_LOCATION="http://localhost:5001"
+export GANTRY_BYPASS_FIREHOSE="true"
 
 streamlit run app.py
 
