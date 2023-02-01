@@ -9,7 +9,7 @@ import boto3
 
 from fsdl_qa import FSDLQAChain
 
-APP_NAME = "llm_qa_test_2_1"
+APP_NAME = "llm_qa_test_v2"
 
 
 @st.cache
