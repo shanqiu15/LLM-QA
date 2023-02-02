@@ -3,3 +3,6 @@ src/*.ipynb
 *.DS_Store
 src/__pycache__
 src/logs
+src/datasets
+*.json
+*.csv
