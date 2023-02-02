@@ -21,14 +21,17 @@ TEMPERATURE = 0
 
 
 class FSDLQAChain:
-    def __init__(self, api_key):
+    def __init__(self, api_key, doc_search=None):
         lecture_text_list, lecture_metadata = parse_lectures()
         srt_text_list, srt_metadata = parse_srt()
         all_text_splits = lecture_text_list + srt_text_list
         all_text_metadata = lecture_metadata + srt_metadata
         self.embeddings = HuggingFaceEmbeddings()
-        self.docsearch = FAISS.from_texts(
-            all_text_splits, self.embeddings, all_text_metadata)
+        if not doc_search:
+            self.docsearch = FAISS.from_texts(
+                all_text_splits, self.embeddings, all_text_metadata)
+        else:
+            self.docsearch = doc_search
         self.openai_llm = OpenAI(
             temperature=TEMPERATURE, openai_api_key=api_key)
         self.chain = VectorDBQAWithSourcesChain.from_chain_type(

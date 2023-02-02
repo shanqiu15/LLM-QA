@@ -1,3 +1,4 @@
+import faiss
 import pandas as pd
 import streamlit as st
 import gantry
@@ -6,22 +7,50 @@ import json
 import base64
 import hashlib
 import boto3
-
+import numpy as np
+import gantry.dataset as gdataset
+import gantry
+from pathlib import Path
 from fsdl_qa import FSDLQAChain
+from langchain.docstore.in_memory import InMemoryDocstore
+from langchain.embeddings.huggingface import HuggingFaceEmbeddings
+from langchain.vectorstores.faiss import FAISS
+from langchain.docstore.document import Document
 
-APP_NAME = "llm_qa_test_v2"
+DATASET_NAME = "fsdl_document_index"
+APP_NAME = f"llm_qa_test_{DATASET_NAME}"
 
 
 @st.cache
 def get_qa_chain():
-    return FSDLQAChain(os.getenv('OPENAI_API_KEY'))
+    gantry.init()
+    workspace = Path("datasets").resolve()
+    gdataset.set_working_directory(str(workspace))
+    embedding_file = workspace/DATASET_NAME/"artifacts"/"embeddings.json"
+    embedding_data = json.load(embedding_file.open())
+
+    docstore_dict = {}
+    index_to_id = {}
+    text_embeddings = []
+    for idx, item in enumerate(embedding_data):
+        text_embeddings.append(item['embedding'])
+        index_to_id[idx] = item["id"]
+        docstore_dict[item["id"]] = Document(
+            page_content=item['text_chunks'], metadata=item["metadata"])
+
+    index = faiss.IndexFlatL2(len(text_embeddings[0]))
+    index.add(np.array(text_embeddings, dtype=np.float32))
+
+    docstore = InMemoryDocstore(docstore_dict)
+    doc_search = FAISS(HuggingFaceEmbeddings().embed_query, index=index,
+                       docstore=docstore, index_to_docstore_id=index_to_id)
+
+    return FSDLQAChain(os.getenv('OPENAI_API_KEY'), doc_search=doc_search)
 
 
 if __name__ == "__main__":
     question = st.text_input("QUESTION", "")
     qa_chain = get_qa_chain()
-
-    gantry.init()
 
     if question:
         with st.form("QA_FORM"):
