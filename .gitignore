@@ -6,3 +6,4 @@ src/logs
 src/datasets
 *.json
 *.csv
+gantry-doc
