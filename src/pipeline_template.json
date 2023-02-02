@@ -2,7 +2,7 @@
   "nodes": [
     {
       "id": "0",
-      "name": "EmbeddingIndex",
+      "name": "Embedding Index",
       "node_type": "data",
       "x": 2,
       "y": 0,
@@ -20,7 +20,7 @@
     },
     {
       "id": "2",
-      "name": "GenerateEmbedding",
+      "name": "Generate Embedding",
       "node_type": "operation",
       "x": 1,
       "y": 1,
@@ -28,7 +28,7 @@
     },
     {
       "id": "3",
-      "name": "QuestionEmbedding",
+      "name": "Question Embedding",
       "node_type": "data",
       "x": 2,
       "y": 1,
@@ -37,11 +37,11 @@
     },
     {
       "id": "4",
-      "name": "Prompt Templates",
+      "name": "Prompt Template",
       "node_type": "data",
       "x": 4,
       "y": 2,
-      "data": [{"prompt templates": "answering the following questions"}],
+      "data": [{"prompt template": "answering the following questions"}],
       "metadata": {}
     },
     {
@@ -54,7 +54,7 @@
     },
     {
       "id": "6",
-      "name": "Top N neighbors",
+      "name": "Top N Neighbors",
       "node_type": "data",
       "x": 4,
       "y": 0,
@@ -91,7 +91,7 @@
     },
     {
       "id": "10",
-      "name": "answer",
+      "name": "Answer",
       "node_type": "data",
       "x": 8,
       "y": 2,

@@ -49,30 +49,30 @@ class FSDLQAChain:
         pipeline = json.load(open("pipeline_template.json"))
         for node in pipeline["nodes"]:
             match node["name"]:
-                case "EmbeddingIndex":
+                case "Embedding Index":
                     node["data"] = [{"index_id": "local_faiss_v0"}]
                     node["metadata"] = {"model_id": self.embeddings.model_name}
                 case "Question":
                     node["data"] = [{"question": question}]
-                case "GenerateEmbedding":
+                case "Generate Embedding":
                     node["metadata"] = {"model_id": self.embeddings.model_name}
-                case "QuestionEmbedding":
+                case "Question Embedding":
                     node["data"] = [
                         {"embedding": self.chain.vectorstore.embedding_function(question)}],
-                case "Prompt Templates":
+                case "Prompt Template":
                     node["data"] = [
-                        {"prompt templates": self.chain.combine_documents_chain.llm_chain.prompt.template}],
+                        {"prompt template": self.chain.combine_documents_chain.llm_chain.prompt.template}],
                 case "KNN":
                     node["metadata"] = {"K": self.chain.k,
                                         "Env": "FAISS"}
-                case "Top N neighbors":
+                case "Top N Neighbors":
                     node["data"] = log_docs_and_score
                 case "Prompt":
                     node["data"] = [{"Prompt": final_prompt}]
                 case "LLM":
                     node["metadata"] = {
                         "model": self.openai_llm.model_name,  "temperature": TEMPERATURE}
-                case "answer":
+                case "Answer":
                     node["data"] = [{"answer": answer}]
         file_name = f"logs/log_session_{random.randint(0, 10000)}.json"
         with open(file_name, "w") as outfile:
