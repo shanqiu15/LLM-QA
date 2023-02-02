@@ -21,7 +21,7 @@ TEMPERATURE = 0
 
 
 class FSDLQAChain:
-    def __init__(self, api_key, doc_search=None):
+    def __init__(self, api_key, doc_search=None, dataset_name=None, dataset_version=None):
         lecture_text_list, lecture_metadata = parse_lectures()
         srt_text_list, srt_metadata = parse_srt()
         all_text_splits = lecture_text_list + srt_text_list
@@ -36,6 +36,8 @@ class FSDLQAChain:
             temperature=TEMPERATURE, openai_api_key=api_key)
         self.chain = VectorDBQAWithSourcesChain.from_chain_type(
             self.openai_llm, chain_type="stuff", vectorstore=self.docsearch)
+        self.index_name = dataset_name
+        self.index_version = dataset_version
 
     def query(self, question: str):
         answer = self.chain({"question": question}, return_only_outputs=True)
@@ -53,7 +55,8 @@ class FSDLQAChain:
         for node in pipeline["nodes"]:
             match node["name"]:
                 case "Embedding Index":
-                    node["data"] = [{"index_id": "local_faiss_v0"}]
+                    node["data"] = [
+                        {"index_name": self.index_name, "index_version": self.index_version}]
                     node["metadata"] = {"model_id": self.embeddings.model_name}
                 case "Question":
                     node["data"] = [{"question": question}]

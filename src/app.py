@@ -17,7 +17,11 @@ from langchain.embeddings.huggingface import HuggingFaceEmbeddings
 from langchain.vectorstores.faiss import FAISS
 from langchain.docstore.document import Document
 
-DATASET_NAME = "fsdl_document_index"
+# DATASET_NAME = "fsdl_document_index"
+# DATASET_NAME = "gantry_document_index"
+# DATASET_VERSION = "d3cb999d-9a72-49af-a53c-abeaa211fc30"
+DATASET_NAME = "gantry_document_index"
+DATASET_VERSION = "b42e4129-c807-4c48-9af8-57d760b6e010"
 APP_NAME = f"llm_qa_test_{DATASET_NAME}"
 
 
@@ -26,6 +30,8 @@ def get_qa_chain():
     gantry.init()
     workspace = Path("datasets").resolve()
     gdataset.set_working_directory(str(workspace))
+    dataset = gdataset.get_dataset(DATASET_NAME)
+    dataset.pull(version_id=DATASET_VERSION)
     embedding_file = workspace/DATASET_NAME/"artifacts"/"embeddings.json"
     embedding_data = json.load(embedding_file.open())
 
