@@ -18,10 +18,10 @@ from langchain.vectorstores.faiss import FAISS
 from langchain.docstore.document import Document
 
 # DATASET_NAME = "fsdl_document_index"
-# DATASET_NAME = "gantry_document_index"
-# DATASET_VERSION = "d3cb999d-9a72-49af-a53c-abeaa211fc30"
+# DATASET_VERSION = None
 DATASET_NAME = "gantry_document_index"
-DATASET_VERSION = "b42e4129-c807-4c48-9af8-57d760b6e010"
+DATASET_VERSION = "d3cb999d-9a72-49af-a53c-abeaa211fc30"
+# DATASET_VERSION = "b42e4129-c807-4c48-9af8-57d760b6e010"
 APP_NAME = f"llm_qa_test_{DATASET_NAME}"
 
 
@@ -51,7 +51,7 @@ def get_qa_chain():
     doc_search = FAISS(HuggingFaceEmbeddings().embed_query, index=index,
                        docstore=docstore, index_to_docstore_id=index_to_id)
 
-    return FSDLQAChain(os.getenv('OPENAI_API_KEY'), doc_search=doc_search)
+    return FSDLQAChain(os.getenv('OPENAI_API_KEY'), doc_search=doc_search, dataset_name=DATASET_NAME, dataset_version=DATASET_VERSION)
 
 
 if __name__ == "__main__":
